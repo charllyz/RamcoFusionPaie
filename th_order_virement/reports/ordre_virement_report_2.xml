@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <report
+        id = "order_virement_report_view"
+        model = "hr.virement"
+        string = "Ordre de virement"
+        report_type = "qweb-pdf"
+        name = "th_order_virement.order_virement_report_2"
+        file = "th_order_virement.order_virement_report_2"
+    />
+    <template id="order_virement_report_2">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-foreach="docs" t-as="o">
+                    <p style="font-size:20px;">Messieurs,</p>
+                    <p style="font-size:20px;">Par le débit de notre compte N° <t t-esc="o.x_studio_n_de_compte"/> chez vous,  nous vous prions de bien vouloir virer dans les meilleurs délais, les montant ci-dessous(en FCFA) au crédit des comptes ouverts également chez vous à <t t-esc="o.bank_id.name"/></p>
+                    <table class="table table-sm">
+                        <thead>
+                            <th>N° MATR</th>
+                            <th>NOM ET PRENOM</th>
+                            <th>BANQUE ET NUMERO DE COMPMTE</th>
+                            <th>NET A PAYER</th>
+                        </thead>
+                        <tbody>
+                            <t t-set="total_amount" t-value="0"/>
+                                <t t-foreach="o.payslip_ids" t-as="payslip_id">
+                                    <tr>
+                                        <td><t t-esc="payslip_id.employee_id.matricule"/></td>
+                                        <td><t t-esc="payslip_id.employee_id.name"/></td>
+                                        <td>
+                                            <span t-esc="payslip_id.employee_id.banque_id.name"/>
+                                            <span style="color:white;">------------------</span>
+                                            <span  t-esc="payslip_id.employee_id.account_number"/>
+                                        </td>
+                                        <td style="text-align:right;"><t t-esc="'{:,}'.format(round(payslip_id.net_wage)).replace(',',' ')"/></td>
+                                        <t t-set="total_amount" t-value="total_amount + payslip_id.net_wage"/>
+                                    </tr>
+                                </t>
+                            <tr>
+                                <td colspan="3">Total</td>
+                                <td><t t-esc="'{:,}'.format(round(total_amount)).replace(',',' ')"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                   <p style="font-size:20px;">Nouv vous en remercions à l'avance</p>
+                   <p style="font-size:20px;">Veuilez agréer Messieurs, nos salutations distinguées</p>
+                   <p style="font-size:20px;">Pour la RAMCO S.A IMPORT-EXPORT</p>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

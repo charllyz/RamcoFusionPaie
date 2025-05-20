@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Étendre la vue de formulaire existante pour hr.virement avec la référence correcte -->
+    <record id="view_hr_virement_form_inherit_type_paiement" model="ir.ui.view">
+        <field name="name">hr.virement.form.inherit.type.paiement</field>
+        <field name="model">hr.virement</field>
+        <field name="inherit_id" ref="th_order_virement.order_virement_form"/>
+        <field name="arch" type="xml">
+            <!-- Ajouter le champ type_paiement après le champ date -->
+            <field name="date" position="after">
+                <field name="type_paiement" required="1"/>
+            </field>
+
+            <!-- Ajouter un bouton pour générer le rapport Excel -->
+            <sheet position="before">
+                <header>
+                    <button name="generate_excel_report" string="Générer Excel" type="object" class="oe_highlight"/>
+                    <field name="excel_file" filename="excel_filename" widget="binary" invisible="1"/>
+                </header>
+            </sheet>
+        </field>
+    </record>
+
+    <!-- Extension de la vue liste également pour ajouter le champ type_paiement -->
+    <record id="view_hr_virement_tree_inherit_type_paiement" model="ir.ui.view">
+        <field name="name">hr.virement.tree.inherit.type.paiement</field>
+        <field name="model">hr.virement</field>
+        <field name="inherit_id" ref="th_order_virement.order_virement_tree"/>
+        <field name="arch" type="xml">
+            <field name="date" position="after">
+                <field name="type_paiement"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Créer une nouvelle vue de recherche complète -->
+    <record id="view_hr_virement_search" model="ir.ui.view">
+        <field name="name">hr.virement.search</field>
+        <field name="model">hr.virement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="mois_de_paie"/>
+                <field name="annee"/>
+                <field name="type_paiement"/>
+                <field name="bank_id"/>
+                <filter string="Virement" name="type_virement" domain="[('type_paiement', '=', 'virement')]"/>
+                <filter string="Chèque" name="type_cheque" domain="[('type_paiement', '=', 'cheque')]"/>
+                <filter string="Espèce" name="type_espece" domain="[('type_paiement', '=', 'espece')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Type de paiement" name="groupby_type" domain="[]" context="{'group_by': 'type_paiement'}"/>
+                    <filter string="Mois" name="groupby_mois" domain="[]" context="{'group_by': 'mois_de_paie'}"/>
+                    <filter string="Année" name="groupby_annee" domain="[]" context="{'group_by': 'annee'}"/>
+                    <filter string="Banque" name="groupby_bank" domain="[]" context="{'group_by': 'bank_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Ajouter un bouton d'action dans la vue liste pour exporter en Excel -->
+    <record id="action_export_virements_excel" model="ir.actions.server">
+        <field name="name">Exporter en Excel</field>
+        <field name="model_id" ref="th_order_virement.model_hr_virement"/>
+        <field name="binding_model_id" ref="th_order_virement.model_hr_virement"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.export_virements_excel()
+        </field>
+    </record>
+</odoo>
+

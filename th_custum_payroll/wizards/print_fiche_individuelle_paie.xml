@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+   <record model="ir.ui.view" id="print_fiche_individuelle_paie_form">
+      <field name="name">print_fiche_individuelle_paie</field>
+      <field name="model">print.fiche.individuelle.paie</field>
+      <field name="arch" type="xml">
+         <form string="Fiche individuelle de paie sur période">
+            <group>
+               <group>
+                  <field name="employee_id" required="1"/>
+                  <field name="date_debut" required="1"/>
+                  <field name="date_fin" required="1"/>
+               </group>
+               <group>
+                  <field name="structure_id"/>
+                  <field name="periode_type" widget="radio"/>
+               </group>
+            </group>
+            <footer>
+               <button name="print_report" string="Imprimer" type="object" class="btn-primary"/>
+               <button string="Annuler" class="btn-secondary" special="cancel"/>
+            </footer>
+         </form>
+      </field>
+   </record>
+
+   <record id="action_print_fiche_individuelle_paie" model="ir.actions.act_window">
+      <field name="name">Fiche individuelle de paie sur période</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">print.fiche.individuelle.paie</field>
+      <field name="view_mode">form</field>
+      <field name="view_id" ref="print_fiche_individuelle_paie_form"/>
+      <field name="target">new</field>
+   </record>
+
+   <menuitem
+      id="menu_fiche_individuelle_paie"
+      name="Fiche individuelle de paie"
+      action="action_print_fiche_individuelle_paie"
+      parent="menu_rapport_payroll_pdf_report"
+   />
+
+</odoo>

@@ -1,0 +1,15 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Rapport Excel pour la liste des ordres de virement -->
+    <record id="hr_virement_xlsx_report" model="ir.actions.report">
+        <field name="name">Export Excel Virements</field>
+        <field name="model">hr.virement</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">th_order_virement.hr_virement_xlsx</field>
+        <field name="report_file">th_order_virement.hr_virement_xlsx</field>
+        <field name="print_report_name">'Ordres de virement - %s' % (datetime.now().strftime('%Y-%m-%d'))</field>
+        <field name="binding_model_id" ref="th_order_virement.model_hr_virement"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
