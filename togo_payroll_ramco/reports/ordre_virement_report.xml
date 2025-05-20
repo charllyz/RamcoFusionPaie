@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Rapport pour l'ordre de virement -->
+    <report
+        id = "order_virement_report_view"
+        model = "hr.virement"
+        string = "Ordre de virement"
+        report_type = "qweb-pdf"
+        name = "togo_payroll_virement.order_virement_report"
+        file = "togo_payroll_virement.order_virement_report"
+    />
+
+    <template id="order_virement_report">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-foreach="docs" t-as="o">
+                    <p style="font-size:20px;">Messieurs,</p>
+                    <p style="font-size:20px;">
+                        <t t-if="o.type_paiement == 'cheque'">
+                            Par ce présent chèque <t t-esc="o.check_number"/>, nous vous prions de bien vouloir virer dans les meilleurs délais, les montant ci-dessous(en FCFA) au crédit des comptes ouverts chez vous à <t t-esc="o.bank_id.name"/>
+                        </t>
+                        <t t-else="">
+                            Nous vous prions de bien vouloir virer dans les meilleurs délais, les montant ci-dessous(en FCFA) au crédit des comptes ouverts chez vous à <t t-esc="o.bank_id.name"/>
+                        </t>
+                    </p>
+                    <table class="table table-sm">
+                        <thead>
+                            <th>N° MATR</th>
+                            <th>NOM ET PRENOM</th>
+                            <th>BANQUE ET NUMERO DE COMPTE</th>
+                            <th>NET A PAYER</th>
+                        </thead>
+                        <tbody>
+                            <t t-set="total_amount" t-value="0"/>
+                                <t t-foreach="o.payslip_ids" t-as="payslip_id">
+                                    <tr>
+                                        <td><t t-esc="payslip_id.employee_id.matricule"/></td>
+                                        <td><t t-esc="payslip_id.employee_id.name"/></td>
+                                        <td>
+                                            <span t-esc="payslip_id.employee_id.banque_id.name"/>
+                                            <span style="color:white;">------------------</span>
+                                            <span t-esc="payslip_id.employee_id.account_number"/>
+                                        </td>
+                                        <td style="text-align:right;"><t t-esc="'{:,}'.format(round(payslip_id.net_wage)).replace(',',' ')"/></td>
+                                        <t t-set="total_amount" t-value="total_amount + payslip_id.net_wage"/>
+                                    </tr>
+                                </t>
+                            <tr>
+                                <td colspan="3">Total</td>
+                                <td><t t-esc="'{:,}'.format(round(total_amount)).replace(',',' ')"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                   <p style="font-size:20px;">Nous vous en remercions à l'avance</p>
+                   <p style="font-size:20px;">Veuillez agréer Messieurs, nos salutations distinguées</p>
+                   <p style="font-size:20px;">Pour la Direction Générale</p>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Rapport Excel pour la liste des ordres de virement -->
+    <record id="hr_virement_xlsx_report" model="ir.actions.report">
+        <field name="name">Export Excel Virements</field>
+        <field name="model">hr.virement</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">togo_payroll_virement.hr_virement_xlsx</field>
+        <field name="report_file">togo_payroll_virement.hr_virement_xlsx</field>
+        <field name="print_report_name">'Ordres de virement - %s' % (datetime.now().strftime('%Y-%m-%d'))</field>
+        <field name="binding_model_id" ref="model_hr_virement"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

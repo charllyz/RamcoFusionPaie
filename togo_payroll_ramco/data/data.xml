@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Structure de paie TOGO -->
+    <record id="togo_salary_structure_id" model="hr.payroll.structure">
+        <field name="name">PAIE TOGO</field>
+        <field name="type_id" ref="hr_contract.structure_type_employee"/>
+    </record>
+
+    <!-- Structure de paie TOGO Congés -->
+    <record id="togo_conges_salary_structure_id" model="hr.payroll.structure">
+        <field name="name">PAIE TOGO Congés</field>
+        <field name="type_id" ref="hr_contract.structure_type_employee"/>
+    </record>
+
+    <!-- Structure de paie EXPA -->
+    <record id="expa_salary_structure_id" model="hr.payroll.structure">
+        <field name="name">PAIE EXPA</field>
+        <field name="type_id" ref="hr_contract.structure_type_employee"/>
+    </record>
+
+    <!-- Structure de paie TOGO STAGIAIRE -->
+    <record id="togo_stagiaire_salary_structure_id" model="hr.payroll.structure">
+        <field name="name">PAIE TOGO STAGIAIRE</field>
+        <field name="type_id" ref="hr_contract.structure_type_employee"/>
+    </record>
+
+    <!-- Catégories de rubriques -->
+    <record id="gain_imposable" model="hr.salary.rule.category">
+        <field name="name">GAIN IMPOSABLE</field>
+        <field name="code">BASIC</field>
+    </record>
+
+    <record id="retenu" model="hr.salary.rule.category">
+        <field name="name">RETENUE</field>
+        <field name="code">DED</field>
+    </record>
+
+    <record id="total_retenu" model="hr.salary.rule.category">
+        <field name="name">TOTAL RETENUE</field>
+        <field name="code">TOTAL RETENUE</field>
+    </record>
+
+    <record id="total_brut_cat" model="hr.salary.rule.category">
+        <field name="name">TOTAL BRUT</field>
+        <field name="code">TOTAL BRUT</field>
+    </record>
+
+    <record id="autre_gain" model="hr.salary.rule.category">
+        <field name="name">AUTRE GAIN</field>
+        <field name="code">ATR</field>
+    </record>
+
+    <record id="autre_retenu" model="hr.salary.rule.category">
+        <field name="name">AUTRE RETENUE</field>
+        <field name="code">ARTN</field>
+    </record>
+
+    <record id="charge_patronale" model="hr.salary.rule.category">
+        <field name="name">CHARGE PATRONALE</field>
+        <field name="code">COMP</field>
+    </record>
+
+    <!-- Règles de salaire principales -->
+    <record id="salaire_categoriel" model="hr.salary.rule">
+        <field name="name">Salaire categoriel</field>
+        <field name="code">salcat</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">100</field>
+        <field name="struct_id" ref="togo_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">if contract.calcul_base != 0:
+    result = contract.calcul_base
+else:
+    result = contract.wage</field>
+    </record>
+
+    <!-- Prime d'ancienneté -->
+    <record id="prime_anciennete" model="hr.salary.rule">
+        <field name="name">Prime d'ancienneté</field>
+        <field name="code">pan</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">110</field>
+        <field name="struct_id" ref="togo_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+# Calcul de l'ancienneté en tenant compte des mois à déduire
+anciennete_brute = payslip.anciennete
+if contract.x_studio_mois_dduire > 0:
+    # Conversion des mois en jours (approximation de 30 jours par mois)
+    jours_a_deduire = contract.x_studio_mois_dduire * 30
+    anciennete_brute -= jours_a_deduire
+# Déduction des congés sans solde
+anciennete_nette = anciennete_brute - contract.conge_sans_solde
+# Conversion en années (partie entière)
+n3 = int(anciennete_nette / 365)
+# Application du minimum de 2 ans pour bénéficier de la prime
+n4 = n3 if n3 >= 2 else 0
+# Calcul de la prime (1% du salaire par année d'ancienneté)
+result = round((contract.wage * n4) / 100)
+        </field>
+    </record>
+
+    <!-- Salaire net -->
+    <record id="salaire_net" model="hr.salary.rule">
+        <field name="name">Salaire net</field>
+        <field name="code">salaire_net</field>
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="sequence">2000</field>
+        <field name="struct_id" ref="togo_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = categories.BASIC + categories.ATR + categories.ALW - categories.DED</field>
+    </record>
+</odoo>

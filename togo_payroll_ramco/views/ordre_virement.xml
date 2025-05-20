@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Formulaire d'ordre de virement -->
+    <record id="ordre_virement_form" model="ir.ui.view">
+        <field name="name">Ordre de virement</field>
+        <field name="model">hr.virement</field>
+        <field name="arch" type="xml">
+            <form string="Ordre de virement">
+                <header>
+                    <button name="generate_excel_report" string="Générer Excel" type="object" class="oe_highlight"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" string="Description"/>
+                            <field name="date"/>
+                            <field name="type_paiement" required="1"/>
+                            <field name="mois_de_paie"/>
+                            <field name="annee"/>
+                        </group>
+                        <group>
+                            <field name="check_number" attrs="{'invisible': [('type_paiement', '!=', 'cheque')], 'required': [('type_paiement', '=', 'cheque')]}"/>
+                            <field name="bank_id"/>
+                            <field name="excel_file" filename="excel_filename" invisible="1"/>
+                            <field name="excel_filename" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="payslip" string="Fiches de paie">
+                            <field name="payslip_ids"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue liste des ordres de virement -->
+    <record id="ordre_virement_tree" model="ir.ui.view">
+        <field name="name">order.virement.tree</field>
+        <field name="model">hr.virement</field>
+        <field name="arch" type="xml">
+            <tree string="Ordres de virement">
+                <field name="date"/>
+                <field name="type_paiement"/>
+                <field name="name" string="Description"/>
+                <field name="mois_de_paie"/>
+                <field name="annee"/>
+                <field name="check_number"/>
+                <field name="bank_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vue de recherche -->
+    <record id="ordre_virement_search" model="ir.ui.view">
+        <field name="name">hr.virement.search</field>
+        <field name="model">hr.virement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="date"/>
+                <field name="mois_de_paie"/>
+                <field name="annee"/>
+                <field name="type_paiement"/>
+                <field name="bank_id"/>
+                <filter string="Virement" name="type_virement" domain="[('type_paiement', '=', 'virement')]"/>
+                <filter string="Chèque" name="type_cheque" domain="[('type_paiement', '=', 'cheque')]"/>
+                <filter string="Espèce" name="type_espece" domain="[('type_paiement', '=', 'espece')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Type de paiement" name="groupby_type" domain="[]" context="{'group_by': 'type_paiement'}"/>
+                    <filter string="Mois" name="groupby_mois" domain="[]" context="{'group_by': 'mois_de_paie'}"/>
+                    <filter string="Année" name="groupby_annee" domain="[]" context="{'group_by': 'annee'}"/>
+                    <filter string="Banque" name="groupby_bank" domain="[]" context="{'group_by': 'bank_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action d'export Excel à partir de la vue liste -->
+    <record id="action_export_virements_excel" model="ir.actions.server">
+        <field name="name">Exporter en Excel</field>
+        <field name="model_id" ref="model_hr_virement"/>
+        <field name="binding_model_id" ref="model_hr_virement"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.export_virements_excel()
+        </field>
+    </record>
+
+    <!-- Action pour ouvrir la vue -->
+    <record id="ordre_virement_menu_action" model="ir.actions.act_window">
+        <field name="name">Ordres de virement</field>
+        <field name="res_model">hr.virement</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="ordre_virement_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créez votre premier ordre de virement
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu pour accéder aux ordres de virement -->
+    <menuitem
+        id="ordre_virement_menu"
+        name="Ordres de virement"
+        action="ordre_virement_menu_action"
+        parent="hr_payroll.menu_hr_payroll_payslips"
+        sequence="100"/>
+</odoo>

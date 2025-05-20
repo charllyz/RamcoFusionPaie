@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="paperformat_bulltin_paie" model="report.paperformat">
+      <field name="name">BULLETIN A4</field>
+      <field name="default" eval="True"/>
+      <field name="format">custom</field>
+      <field name="page_height">210</field>
+      <field name="page_width">297</field>
+      <field name="margin_top">5</field>
+      <field name="margin_bottom">0</field>
+      <field name="margin_left">7</field>
+      <field name="margin_right">7</field>
+      <field name="header_line" eval="False"/>
+      <field name="header_spacing">35</field>
+      <field name="dpi">90</field>
+  </record>
+
+  <!-- Rapport pour PAIE TOGO -->
+  <report
+      id="bulletin_paie_report_view"
+      model="hr.payslip"
+      string="BULLETIN DE PAIE TOGO"
+      report_type="qweb-pdf"
+      name="togo_payroll_virement.hr_payroll_bulletin_paie"
+      file="togo_payroll_virement.hr_payroll_bulletin_paie"
+      paperformat="paperformat_bulltin_paie"
+  />
+
+  <!-- Rapport pour PAIE TOGO Congés -->
+  <report
+      id="bulletin_paie_conges_report_view"
+      model="hr.payslip"
+      string="BULLETIN DE PAIE TOGO CONGES"
+      report_type="qweb-pdf"
+      name="togo_payroll_virement.hr_payroll_bulletin_paie_conges"
+      file="togo_payroll_virement.hr_payroll_bulletin_paie_conges"
+      paperformat="paperformat_bulltin_paie"
+  />
+
+  <!-- Rapport pour PAIE EXPA -->
+  <report
+      id="bulletin_paie_expa_report_view"
+      model="hr.payslip"
+      string="BULLETIN DE PAIE EXPA"
+      report_type="qweb-pdf"
+      name="togo_payroll_virement.hr_payroll_bulletin_paie_expa"
+      file="togo_payroll_virement.hr_payroll_bulletin_paie_expa"
+      paperformat="paperformat_bulltin_paie"
+  />
+
+  <!-- Rapport pour PAIE TOGO STAGIAIRE -->
+  <report
+      id="bulletin_paie_stagiaire_report_view"
+      model="hr.payslip"
+      string="BULLETIN DE PAIE TOGO STAGIAIRE"
+      report_type="qweb-pdf"
+      name="togo_payroll_virement.hr_payroll_bulletin_paie_stagiaire"
+      file="togo_payroll_virement.hr_payroll_bulletin_paie_stagiaire"
+      paperformat="paperformat_bulltin_paie"
+  />
+</odoo>

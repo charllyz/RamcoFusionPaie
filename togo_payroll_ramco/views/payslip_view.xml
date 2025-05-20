@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Ajouter le champ structure_name à la vue du formulaire -->
+    <record id="hr_payslip_view_form_add_structure_name" model="ir.ui.view">
+        <field name="name">hr.payslip.form.add.structure.name</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <!-- Champ invisible pour rendre structure_name disponible pour les attributs attrs -->
+                <field name="structure_name" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Modification de la vue des bulletins de paie pour ajouter les boutons spécifiques à chaque structure -->
+    <record id="hr_payslip_view_form_inherit" model="ir.ui.view">
+        <field name="name">hr.payslip.form.inherit</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <!-- Bouton pour FICHE DE PAIE TOGO -->
+                <button name="%(togo_payroll_virement.bulletin_paie_report_view)d"
+                        string="FICHE DE PAIE TOGO"
+                        type="action"
+                        attrs="{'invisible': [('structure_name', '!=', 'PAIE TOGO')]}"
+                        class="oe_highlight"/>
+
+                <!-- Bouton pour FICHE DE PAIE CONGÉS -->
+                <button name="%(togo_payroll_virement.bulletin_paie_conges_report_view)d"
+                        string="FICHE DE PAIE CONGÉS"
+                        type="action"
+                        attrs="{'invisible': [('structure_name', '!=', 'PAIE TOGO Congés')]}"
+                        class="oe_highlight"/>
+
+                <!-- Bouton pour FICHE DE PAIE EXPA -->
+                <button name="%(togo_payroll_virement.bulletin_paie_expa_report_view)d"
+                        string="FICHE DE PAIE EXPA"
+                        type="action"
+                        attrs="{'invisible': [('structure_name', '!=', 'PAIE EXPA')]}"
+                        class="oe_highlight"/>
+
+                <!-- Bouton pour FICHE DE PAIE STAGIAIRE -->
+                <button name="%(togo_payroll_virement.bulletin_paie_stagiaire_report_view)d"
+                        string="FICHE DE PAIE STAGIAIRE"
+                        type="action"
+                        attrs="{'invisible': [('structure_name', '!=', 'PAIE TOGO STAGIAIRE')]}"
+                        class="oe_highlight"/>
+            </xpath>
+
+            <!-- Ajout du champ net_wage -->
+            <field name="number" position="after">
+                <field name="net_wage" readonly="1" widget="monetary"/>
+            </field>
+
+            <!-- Ajout des informations supplémentaires -->
+            <page name="account_info" position="after">
+                <page name="autre_infos" string="Autres informations">
+                    <group>
+                        <group>
+                            <field name="anciennete"/>
+                            <field name="heure_suplementaire"/>
+                        </group>
+                    </group>
+                </page>
+            </page>
+        </field>
+    </record>
+</odoo>
