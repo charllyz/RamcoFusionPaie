@@ -17,6 +17,7 @@
                         <field name="nombre_jour"/>
                         <field name="rapel_salaire_imp"/>
                         <field name="sursalaire"/>
+                        <field name="calcul_base" currency_field="currency_id"/>
                     </group>
                 </group>
                 <xpath expr="//page[2]" position="after">
@@ -34,6 +35,7 @@
                                 <field name="prime_fonction"/>
                                 <field name="prime_responsabilite"/>
                                 <field name="prime_13_mois"/>
+                                <field name="x_studio_float_field_tSmF1" string="Complément 13ème mois"/>
                                 <field name="conge_paye"/>
                                 <field name="indeminite_retraite_ir"/>
                                 <field name="indeminite_retraite_non_ir"/>
@@ -66,7 +68,8 @@
                                 <field name="trop_percu"/>
                                 <field name="remboursement_pret"/>
                                 <field name="type_paiement"/>
-                                <field name="x_studio_mois_dduire"/>
+                                <field name="x_studio_mois_dduire" string="Mois à déduire (ancienneté)"/>
+                                <field name="x_studio_moins_peru_sur_salaire" string="Moins perçu sur salaire"/>
                             </group>
                         </group>
                     </page>
@@ -75,6 +78,8 @@
                             <group>
                                 <field name="avantage_logement"/>
                                 <field name="avantage_voiture"/>
+                                <field name="x_studio_avantage_en_eau" string="Avantage en eau"/>
+                                <field name="x_studio_avantage_en_mdecine" string="Avantage en médecine"/>
                             </group>
                         </group>
                     </page>

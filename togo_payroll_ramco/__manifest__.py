@@ -13,7 +13,7 @@
     'maintainer': 'Votre Nom',
     'company': 'Votre Société',
     'website': 'https://yourdomain.com',
-    'depends': ['base', 'hr', 'hr_payroll', 'report_xlsx'],
+    'depends': ['base', 'hr', 'hr_payroll'],
     'data': [
         'security/ir.model.access.csv',
 
