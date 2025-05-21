@@ -290,7 +290,7 @@ result = round((contract.wage * n4) / 100)
 
     <!-- Habillement & encouragement -->
     <record id="habillement_encouragement" model="hr.salary.rule">
-        <field name="name">Habillement & encouragement</field>
+        <field name="name">Habillement et encouragement</field>
         <field name="code">habillement_encouragement</field>
         <field name="category_id" ref="gain_imposable"/>
         <field name="sequence">139</field>
@@ -602,20 +602,20 @@ result = cnss</field>
         <field name="amount_python_compute">salaireBrut = categories.BASIC
 cnss = salaireBrut * 9 / 100
 semibrut = salaireBrut - cnss - prime_caisse - indeminite_retraite_ir
-abattement = semibrut * 28 / 100 if (semibrut < 833333) else 233333
+abattement = semibrut * 28 / 100 if (semibrut &lt; 833333) else 233333
 revenu_semi_net = semibrut - abattement
 allocation = 10000 * employee.children
 revenu_net = revenu_semi_net - allocation
 baseirpp = (int(revenu_net/1000)) * 1000
 
-tranche1 = baseirpp < 75000 >= 0
-tranche2 = baseirpp < 250000 and baseirpp >= 75000
-tranche3 = baseirpp < 500000 and baseirpp >= 250000
-tranche4 = baseirpp < 750000 and baseirpp >= 500000
-tranche5 = baseirpp < 1000000 and baseirpp >= 750000
-tranche6 = baseirpp < 1250000 and baseirpp >= 1000000
-tranche7 = baseirpp < 1666667 and baseirpp >= 1250000
-tranche8 = baseirpp >= 1666667
+tranche1 = baseirpp &lt; 75000 &gt;= 0
+tranche2 = baseirpp &lt; 250000 and baseirpp &gt;= 75000
+tranche3 = baseirpp &lt; 500000 and baseirpp &gt;= 250000
+tranche4 = baseirpp &lt; 750000 and baseirpp &gt;= 500000
+tranche5 = baseirpp &lt; 1000000 and baseirpp &gt;= 750000
+tranche6 = baseirpp &lt; 1250000 and baseirpp &gt;= 1000000
+tranche7 = baseirpp &lt; 1666667 and baseirpp &gt;= 1250000
+tranche8 = baseirpp &gt;= 1666667
 
 tranche1_irpp = (75000 - 0) * 0/100
 tranche2_irpp = (250000 - 75000) * 3/100
@@ -904,32 +904,32 @@ result = round((contract.wage * n4) / 100)</field>
     </record>
 
     <!-- Retenue IRPP PAIE TOGO Congés -->
-    <record id="retenue_irpp_conges" model="hr.salary.rule">
-        <field name="name">Retenue IRPP</field>
-        <field name="code">retenue_irpp</field>
-        <field name="category_id" ref="retenu"/>
-        <field name="sequence">410</field>
-        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
-        <field name="active">TRUE</field>
-        <field name="appears_on_payslip">TRUE</field>
-        <field name="amount_select">code</field>
-        <field name="amount_python_compute">salaireBrut = (categories.BASIC + categories.ALW - contract.wage - contract.absence_a_deduire)
+<record id="retenue_irpp_conges" model="hr.salary.rule">
+    <field name="name">Retenue IRPP</field>
+    <field name="code">retenue_irpp</field>
+    <field name="category_id" ref="retenu"/>
+    <field name="sequence">410</field>
+    <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+    <field name="active">TRUE</field>
+    <field name="appears_on_payslip">TRUE</field>
+    <field name="amount_select">code</field>
+    <field name="amount_python_compute">salaireBrut = (categories.BASIC + categories.ALW - contract.wage - contract.absence_a_deduire)
 cnss = salaireBrut * 9 / 100
 semibrut = salaireBrut - cnss - prime_caisse - indeminite_retraite_ir
-abattement = semibrut * 28 / 100 if (semibrut < 833333) else 233333
+abattement = semibrut * 28 / 100 if (semibrut &lt; 833333) else 233333
 revenu_semi_net = semibrut - abattement
 allocation = 10000 * employee.children
 revenu_net = revenu_semi_net - allocation
 baseirpp = (int(revenu_net/1000)) * 1000
 
-tranche1 = baseirpp < 75000 >= 0
-tranche2 = baseirpp < 250000 and baseirpp >= 75000
-tranche3 = baseirpp < 500000 and baseirpp >= 250000
-tranche4 = baseirpp < 750000 and baseirpp >= 500000
-tranche5 = baseirpp < 1000000 and baseirpp >= 750000
-tranche6 = baseirpp < 1250000 and baseirpp >= 1000000
-tranche7 = baseirpp < 1666667 and baseirpp >= 1250000
-tranche8 = baseirpp >= 1666667
+tranche1 = baseirpp &lt; 75000 &gt;= 0
+tranche2 = baseirpp &lt; 250000 and baseirpp &gt;= 75000
+tranche3 = baseirpp &lt; 500000 and baseirpp &gt;= 250000
+tranche4 = baseirpp &lt; 750000 and baseirpp &gt;= 500000
+tranche5 = baseirpp &lt; 1000000 and baseirpp &gt;= 750000
+tranche6 = baseirpp &lt; 1250000 and baseirpp &gt;= 1000000
+tranche7 = baseirpp &lt; 1666667 and baseirpp &gt;= 1250000
+tranche8 = baseirpp &gt;= 1666667
 
 tranche1_irpp = (75000 - 0) * 0/100
 tranche2_irpp = (250000 - 75000) * 3/100
@@ -959,7 +959,7 @@ if tranche8:
 
 irpp = int(irpp / 10) * 10
 result = irpp</field>
-    </record>
+</record>
 
     <!-- Salaire categoriel PAIE TOGO Congés -->
     <record id="salaire_categoriel_conges" model="hr.salary.rule">

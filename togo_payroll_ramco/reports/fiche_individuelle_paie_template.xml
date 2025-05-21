@@ -5,8 +5,8 @@
         model="print.fiche.individuelle.paie"
         string="Fiche individuelle de paie"
         report_type="qweb-pdf"
-        name="togo_payroll_virement.fiche_individuelle_paie_template"
-        file="togo_payroll_virement.fiche_individuelle_paie_template"
+        name="togo_payroll_ramco.fiche_individuelle_paie_template"
+        file="togo_payroll_ramco.fiche_individuelle_paie_template"
         paperformat="paperformat_bulltin_paie"
     />
 

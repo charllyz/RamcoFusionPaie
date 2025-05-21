@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, api, _, fields
-from odoo.exceptions import UserError, ValidationError
-from math import *
-from datetime import *
-import datetime
-import dateutil
-import io
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 import base64
+import io
 import xlsxwriter
+from datetime import datetime
 
 class HrVirement(models.Model):
     _name = 'hr.virement'
@@ -46,12 +43,12 @@ class HrVirement(models.Model):
     excel_file = fields.Binary(string='Fichier Excel', readonly=True)
     excel_filename = fields.Char(string='Nom du fichier Excel', readonly=True)
 
-    def generate_excel_report(self):
+    def generate_xlsx_report_download(self):
         """Génère un fichier Excel pour l'ordre de virement basé sur le format du rapport PDF existant"""
         self.ensure_one()
 
         if not self.payslip_ids:
-            raise models.UserError(_("Aucune fiche de paie associée à cet ordre de virement."))
+            raise UserError(_("Aucune fiche de paie associée à cet ordre de virement."))
 
         # Créer un fichier Excel en mémoire
         output = io.BytesIO()
@@ -187,7 +184,7 @@ class HrVirement(models.Model):
         sheet.merge_range(f'A{row}:D{row}', "Veuillez agréer Messieurs, nos salutations distinguées",
                           normal_text_format)
         row += 1
-        sheet.merge_range(f'A{row}:D{row}', "Pour la RAMCO S.A IMPORT-EXPORT", normal_text_format)
+        sheet.merge_range(f'A{row}:D{row}', "Pour la Direction Générale", normal_text_format)
 
         # Signature
         row += 3
@@ -219,7 +216,7 @@ class HrVirement(models.Model):
     def export_virements_excel(self):
         """Export le tableau des ordres de virement en Excel exactement comme affiché dans l'interface"""
         if not self:
-            raise models.UserError(_("Aucun ordre de virement sélectionné."))
+            raise UserError(_("Aucun ordre de virement sélectionné."))
 
         # Créer un fichier Excel en mémoire
         output = io.BytesIO()

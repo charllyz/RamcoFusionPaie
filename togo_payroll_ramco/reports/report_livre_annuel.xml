@@ -5,8 +5,8 @@
         model = "print.paieannuel.report"
         string = "Livre annuel de paie"
         report_type = "qweb-pdf"
-        name = "togo_payroll_virement.th_paie_annuel_pdf_report_view"
-        file = "togo_payroll_virement.th_paie_annuel_pdf_report_view"
+        name = "togo_payroll_ramco.th_paie_annuel_pdf_report_view"
+        file = "togo_payroll_ramco.th_paie_annuel_pdf_report_view"
         paperformat="paperformat_bulltin_paie"
     />
 

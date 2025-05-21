@@ -6,8 +6,8 @@
         model = "hr.virement"
         string = "Ordre de virement"
         report_type = "qweb-pdf"
-        name = "togo_payroll_virement.order_virement_report"
-        file = "togo_payroll_virement.order_virement_report"
+        name = "togo_payroll_ramco.order_virement_report"
+        file = "togo_payroll_ramco.order_virement_report"
     />
 
     <template id="order_virement_report">
@@ -60,15 +60,17 @@
         </t>
     </template>
 
-    <!-- Rapport Excel pour la liste des ordres de virement -->
+<!--
+    Rapport Excel désactivé - dépendance au module report_xlsx manquante
     <record id="hr_virement_xlsx_report" model="ir.actions.report">
         <field name="name">Export Excel Virements</field>
         <field name="model">hr.virement</field>
         <field name="report_type">xlsx</field>
-        <field name="report_name">togo_payroll_virement.hr_virement_xlsx</field>
-        <field name="report_file">togo_payroll_virement.hr_virement_xlsx</field>
+        <field name="report_name">togo_payroll_ramco.hr_virement_xlsx</field>
+        <field name="report_file">togo_payroll_ramco.hr_virement_xlsx</field>
         <field name="print_report_name">'Ordres de virement - %s' % (datetime.now().strftime('%Y-%m-%d'))</field>
         <field name="binding_model_id" ref="model_hr_virement"/>
         <field name="binding_type">report</field>
     </record>
+-->
 </odoo>

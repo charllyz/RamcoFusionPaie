@@ -21,28 +21,28 @@
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
                 <!-- Bouton pour FICHE DE PAIE TOGO -->
-                <button name="%(togo_payroll_virement.bulletin_paie_report_view)d"
+                <button name="%(togo_payroll_ramco.bulletin_paie_report_view)d"
                         string="FICHE DE PAIE TOGO"
                         type="action"
                         attrs="{'invisible': [('structure_name', '!=', 'PAIE TOGO')]}"
                         class="oe_highlight"/>
 
                 <!-- Bouton pour FICHE DE PAIE CONGÉS -->
-                <button name="%(togo_payroll_virement.bulletin_paie_conges_report_view)d"
+                <button name="%(togo_payroll_ramco.bulletin_paie_conges_report_view)d"
                         string="FICHE DE PAIE CONGÉS"
                         type="action"
                         attrs="{'invisible': [('structure_name', '!=', 'PAIE TOGO Congés')]}"
                         class="oe_highlight"/>
 
                 <!-- Bouton pour FICHE DE PAIE EXPA -->
-                <button name="%(togo_payroll_virement.bulletin_paie_expa_report_view)d"
+                <button name="%(togo_payroll_ramco.bulletin_paie_expa_report_view)d"
                         string="FICHE DE PAIE EXPA"
                         type="action"
                         attrs="{'invisible': [('structure_name', '!=', 'PAIE EXPA')]}"
                         class="oe_highlight"/>
 
                 <!-- Bouton pour FICHE DE PAIE STAGIAIRE -->
-                <button name="%(togo_payroll_virement.bulletin_paie_stagiaire_report_view)d"
+                <button name="%(togo_payroll_ramco.bulletin_paie_stagiaire_report_view)d"
                         string="FICHE DE PAIE STAGIAIRE"
                         type="action"
                         attrs="{'invisible': [('structure_name', '!=', 'PAIE TOGO STAGIAIRE')]}"

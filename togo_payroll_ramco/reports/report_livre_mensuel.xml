@@ -5,8 +5,8 @@
         model = "print.payrollpdf.report"
         string = "Livre de paie"
         report_type = "qweb-pdf"
-        name = "togo_payroll_virement.th_paie_pdf_report_view"
-        file = "togo_payroll_virement.th_paie_pdf_report_view"
+        name = "togo_payroll_ramco.th_paie_pdf_report_view"
+        file = "togo_payroll_ramco.th_paie_pdf_report_view"
         paperformat="paperformat_bulltin_paie"
     />
 

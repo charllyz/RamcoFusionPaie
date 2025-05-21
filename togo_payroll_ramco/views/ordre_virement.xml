@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Ordre de virement">
                 <header>
-                    <button name="generate_excel_report" string="Générer Excel" type="object" class="oe_highlight"/>
+                   <button name="generate_xlsx_report_download" string="Générer Excel" type="object" class="oe_highlight"/>
                 </header>
                 <sheet>
                     <group>

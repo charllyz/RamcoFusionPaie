@@ -109,4 +109,4 @@ class PrintPayrollReport(models.TransientModel):
         data['nombre_employee'] = len(payslip_ids)
         data['compayinfo'] = compayinfo
 
-        return self.env.ref('togo_payroll_virement.payroll_pdf_view_report').report_action(self, data=data)
+        return self.env.ref('togo_payroll_ramco.payroll_pdf_view_report').report_action(self, data=data)

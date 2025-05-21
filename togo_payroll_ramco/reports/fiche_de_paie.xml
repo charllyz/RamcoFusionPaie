@@ -21,8 +21,8 @@
       model="hr.payslip"
       string="BULLETIN DE PAIE TOGO"
       report_type="qweb-pdf"
-      name="togo_payroll_virement.hr_payroll_bulletin_paie"
-      file="togo_payroll_virement.hr_payroll_bulletin_paie"
+      name="togo_payroll_ramco.hr_payroll_bulletin_paie"
+      file="togo_payroll_ramco.hr_payroll_bulletin_paie"
       paperformat="paperformat_bulltin_paie"
   />
 
@@ -32,8 +32,8 @@
       model="hr.payslip"
       string="BULLETIN DE PAIE TOGO CONGES"
       report_type="qweb-pdf"
-      name="togo_payroll_virement.hr_payroll_bulletin_paie_conges"
-      file="togo_payroll_virement.hr_payroll_bulletin_paie_conges"
+      name="togo_payroll_ramco.hr_payroll_bulletin_paie_conges"
+      file="togo_payroll_ramco.hr_payroll_bulletin_paie_conges"
       paperformat="paperformat_bulltin_paie"
   />
 
@@ -43,8 +43,8 @@
       model="hr.payslip"
       string="BULLETIN DE PAIE EXPA"
       report_type="qweb-pdf"
-      name="togo_payroll_virement.hr_payroll_bulletin_paie_expa"
-      file="togo_payroll_virement.hr_payroll_bulletin_paie_expa"
+      name="togo_payroll_ramco.hr_payroll_bulletin_paie_expa"
+      file="togo_payroll_ramco.hr_payroll_bulletin_paie_expa"
       paperformat="paperformat_bulltin_paie"
   />
 
@@ -54,8 +54,8 @@
       model="hr.payslip"
       string="BULLETIN DE PAIE TOGO STAGIAIRE"
       report_type="qweb-pdf"
-      name="togo_payroll_virement.hr_payroll_bulletin_paie_stagiaire"
-      file="togo_payroll_virement.hr_payroll_bulletin_paie_stagiaire"
+      name="togo_payroll_ramco.hr_payroll_bulletin_paie_stagiaire"
+      file="togo_payroll_ramco.hr_payroll_bulletin_paie_stagiaire"
       paperformat="paperformat_bulltin_paie"
   />
 </odoo>

@@ -17,6 +17,13 @@
     'data': [
         'security/ir.model.access.csv',
 
+        # Rapports
+        'reports/fiche_de_paie.xml',
+        'reports/ordre_virement_report.xml',
+        'reports/report_livre_mensuel.xml',
+        'reports/report_livre_annuel.xml',
+        'reports/fiche_individuelle_paie_template.xml',
+
         # Vues
         'views/contract.xml',
         'views/ordre_virement.xml',
@@ -27,13 +34,6 @@
         'wizards/livre_annuel_pdf.xml',
         'wizards/print_fiche_individuelle_paie.xml',
         'wizards/payroll_report_wiz.xml',
-
-        # Rapports
-        'reports/fiche_de_paie.xml',
-        'reports/ordre_virement_report.xml',
-        'reports/report_livre_mensuel.xml',
-        'reports/report_livre_annuel.xml',
-        'reports/fiche_individuelle_paie_template.xml',
 
         # Données
         'data/data.xml',
@@ -46,3 +46,4 @@
         'python': ['xlsxwriter'],
     },
 }
+

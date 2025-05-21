@@ -3,7 +3,7 @@ from odoo import models, fields, _
 
 
 class HrVirementListExportXlsx(models.AbstractModel):
-    _name = 'report.togo_payroll_virement.hr_virement_xlsx'
+    _name = 'report.togo_payroll_ramco.hr_virement_xlsx'
     _inherit = 'report.report_xlsx.abstract'
     _description = 'Export Excel des ordres de virement'
 

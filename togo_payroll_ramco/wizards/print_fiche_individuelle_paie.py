@@ -162,4 +162,4 @@ class PrintFicheIndividuellePaie(models.TransientModel):
             'periode_type': dict(self._fields['periode_type'].selection).get(self.periode_type),
         }
 
-        return self.env.ref('togo_payroll_virement.fiche_individuelle_paie_report').report_action(self, data=data)
+        return self.env.ref('togo_payroll_ramco.fiche_individuelle_paie_report').report_action(self, data=data)

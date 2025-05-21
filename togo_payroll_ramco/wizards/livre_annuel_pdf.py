@@ -125,4 +125,4 @@ class PrintPayrollAnnuelReport(models.TransientModel):
         data['nombre_employee'] = len(self.env['hr.employee'].search([]))
         data['annee'] = self.date_debut.strftime('%Y')
         data['compayinfo'] = compayinfo
-        return self.env.ref('togo_payroll_virement.paie_annuel_pdf_view_report').report_action(self, data=data)
+        return self.env.ref('togo_payroll_ramco.paie_annuel_pdf_view_report').report_action(self, data=data)
