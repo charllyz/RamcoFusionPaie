@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <report
+        id="fiche_individuelle_paie_report"
+        model="print.fiche.individuelle.paie"
+        string="Fiche individuelle de paie"
+        report_type="qweb-pdf"
+        name="togo_payroll_ramco.fiche_individuelle_paie_template"
+        file="togo_payroll_ramco.fiche_individuelle_paie_template"
+        paperformat="paperformat_bulltin_paie"
+    />
+
+    <template id="fiche_individuelle_paie_template">
+        <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
+                <style type="text/css">
+                  html{
+                  /*font-family: Century Gothic;*/
+                  }
+                  .MyTable {
+                     border-collapse:collapse;
+                     border:1px solid black;
+                     width: 100%;
+                     font-family:'Arial Narrow' font-size:16;
+                    }
+                  .sparator{
+                    color:white;
+                  }
+                  .MyTable td {
+                     border:1px solid black;
+                     border-bottom : 0px;
+                     border-top: 0px;
+                     margin-left: 150px;
+                     font-family:'Arial Narrow'; font-size:15;
+                   }
+                   .MyTable tr{
+                    border-bottom : 0px;
+                     border-top: 0px;
+                     font-family:'Arial Narrow'; font-size:15;
+                   }
+                   .MyTable th{
+                    border:1px solid black;
+                    font-family:'Arial Narrow'; font-size:15;
+                   }
+                   .entete {
+                     text-align: center;
+                     font-family:'Arial Narrow'; font-size:15;
+                   }
+                   .img{
+                      width: 200px;
+                      height: 150px;
+                      font-family:'Arial Narrow'; font-size:15;
+                     }
+                  .montant{
+                    text-align: right;
+                    font-family:'Arial Narrow'; font-size:15;
+                    padding-right:5px;
+                  }
+                  .company{
+                    font-size: 22px;
+                    font-weight: bold;
+                    font-family:'Arial Narrow'; font-size:15;
+                  }
+
+                 .rubrique{
+                  font-size: 20;
+                  font-family:'Arial Narrow'; font-size:15;
+                 }
+                 .montant-total{
+                   font-weight: bold;
+                   font-family:'Arial Narrow'; font-size:15;
+                 }
+                 .totalback{
+                   background-color: lightgray;
+                   font-weight: bold;
+                 }
+                </style>
+                <t t-set="page" t-value="1"/>
+                <t t-foreach="docs" t-as="o">
+                    <div class="page page_font">
+                       <table class="MyTable entete">
+                            <tr>
+                                <td width="45%">
+                                <img t-if="compayinfo['logo']" t-attf-src="data:image/*;base64,{{compayinfo['logo']}}" style="width: 200px;"/>
+                                </td>
+                                <td><h3 style="color : rgb(31,62,124);">FICHE INDIVIDUELLE DE PAIE</h3>
+                                <p><span class="company" t-esc="compayinfo['name']"/><br/>
+                                <span t-esc="compayinfo['street']"/><br/>
+                                <span t-esc="compayinfo['zip']"/> <span t-esc="compayinfo['city']"/> -<span t-esc="compayinfo['country']"/><br/>
+                                Tel : <span t-esc="compayinfo['phone']"/> / E-mail : <span t-esc="compayinfo['email']"/><br/>
+                                </p>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <h4 class="text-center">PÉRIODE DU <span t-esc="date_debut"/> AU <span t-esc="date_fin"/> (<span t-esc="periode_type"/>)</h4>
+
+                       <!-- Informations employé -->
+                        <table class="MyTable">
+                            <tr>
+                                <th width="25%">Nom et prénoms</th>
+                                <th><b t-esc="employee['name']"/></th>
+                                <th>Matricule</th>
+                                <th><span t-esc="employee['matricule'] or ''"/></th>
+                            </tr>
+                            <tr>
+                                <td>Poste occupé</td>
+                                <td><span t-esc="employee['job_title'] or ''"/></td>
+                                <td>Département</td>
+                                <td><span t-esc="employee['department'] or ''"/></td>
+                            </tr>
+                            <tr>
+                                <th>Date d'embauche</th>
+                                <th><span t-esc="employee['date_embauche']"/></th>
+                                <th>Numéro CNSS</th>
+                                <th><span t-esc="employee['numero_cnss'] or ''"/></th>
+                            </tr>
+                        </table>
+
+                        <!-- Tableau des éléments de paie -->
+                        <table class="MyTable" style="margin-top: 20px;">
+                            <tr>
+                                <th width="10%">Code</th>
+                                <th width="30%">Désignation</th>
+                                <t t-foreach="periods" t-as="period">
+                                    <t t-if="period['period'] != 'Total'">
+                                        <th t-esc="period['period']"></th>
+                                    </t>
+                                </t>
+                                <th class="totalback">TOTAL</th>
+                            </tr>
+
+                            <t t-foreach="heads" t-as="head">
+                                <tr>
+                                    <td><span t-esc="head[1]"/></td>
+                                    <t t-if="head[0] == 'Total brut' or head[0] == 'Total cotisation' or head[0] == 'Salaire Net'">
+                                        <th style="text-align: left; padding-left: 5px;"><span t-esc="head[0]"/></th>
+                                    </t>
+                                    <t t-else="">
+                                        <td style="text-align: left; padding-left: 5px;"><span t-esc="head[0]"/></td>
+                                    </t>
+
+                                    <!-- Valeurs pour chaque période -->
+                                    <t t-foreach="periods" t-as="period">
+                                        <t t-if="period['period'] != 'Total'">
+                                            <t t-set="found" t-value="False"/>
+                                            <t t-foreach="period['lines']" t-as="line">
+                                                <t t-if="line['code'] == head[1]">
+                                                    <t t-if="head[0] == 'Total brut' or head[0] == 'Total cotisation' or head[0] == 'Salaire Net'">
+                                                        <th class="montant">
+                                                            <t t-if="line['total'] != 0">
+                                                                <span t-esc="'{:,}'.format(round(line['total'])).replace(',', ' ')"/>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span>0</span>
+                                                            </t>
+                                                        </th>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <td class="montant">
+                                                            <t t-if="line['total'] != 0">
+                                                                <span t-esc="'{:,}'.format(round(line['total'])).replace(',', ' ')"/>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span>0</span>
+                                                            </t>
+                                                        </td>
+                                                    </t>
+                                                    <t t-set="found" t-value="True"/>
+                                                </t>
+                                            </t>
+                                            <t t-if="not found">
+                                                <t t-if="head[0] == 'Total brut' or head[0] == 'Total cotisation' or head[0] == 'Salaire Net'">
+                                                    <th class="montant">0</th>
+                                                </t>
+                                                <t t-else="">
+                                                    <td class="montant">0</td>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+
+                                    <!-- Total pour cette rubrique -->
+                                    <t t-set="total_found" t-value="False"/>
+                                    <t t-if="periods and len(periods) > 0">
+                                        <t t-foreach="periods[-1]['lines']" t-as="line">
+                                            <t t-if="line['code'] == head[1]">
+                                                <t t-if="head[0] == 'Total brut' or head[0] == 'Total cotisation' or head[0] == 'Salaire Net'">
+                                                    <th class="montant totalback">
+                                                        <t t-if="line['total'] != 0">
+                                                            <span t-esc="'{:,}'.format(round(line['total'])).replace(',', ' ')"/>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span>0</span>
+                                                        </t>
+                                                    </th>
+                                                </t>
+                                                <t t-else="">
+                                                    <td class="montant totalback">
+                                                        <t t-if="line['total'] != 0">
+                                                            <span t-esc="'{:,}'.format(round(line['total'])).replace(',', ' ')"/>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span>0</span>
+                                                        </t>
+                                                    </td>
+                                                </t>
+                                                <t t-set="total_found" t-value="True"/>
+                                            </t>
+                                        </t>
+                                    </t>
+                                    <t t-if="not total_found">
+                                        <t t-if="head[0] == 'Total brut' or head[0] == 'Total cotisation' or head[0] == 'Salaire Net'">
+                                            <th class="montant totalback">0</th>
+                                        </t>
+                                        <t t-else="">
+                                            <td class="montant totalback">0</td>
+                                        </t>
+                                    </t>
+                                </tr>
+                            </t>
+                        </table>
+
+                        <div style="margin-top: 30px; text-align: right;">
+                            <p>Date d'édition: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/></p>
+                        </div>
+
+                        <div style="margin-top: 50px; text-align: right;">
+                            <p>Signature et cachet de l'employeur</p>
+                            <div style="height: 80px;"></div>
+                        </div>
+
+                        <div style="text-align: center; font-style: italic; margin-top: 30px;">
+                            <p>Ce document est un récapitulatif pour information et ne remplace pas les bulletins de paie officiels</p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
