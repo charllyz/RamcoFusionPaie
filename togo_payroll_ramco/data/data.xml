@@ -81,27 +81,37 @@ else:
     <!-- Prime d'ancienneté -->
     <record id="prime_anciennete" model="hr.salary.rule">
         <field name="name">Prime d'ancienneté</field>
-        <field name="code">pan</field>
+        <field name="code">anc</field>
         <field name="category_id" ref="gain_imposable"/>
         <field name="sequence">110</field>
         <field name="struct_id" ref="togo_salary_structure_id"/>
         <field name="active">TRUE</field>
         <field name="appears_on_payslip">TRUE</field>
         <field name="amount_select">code</field>
-        <field name="amount_python_compute">
-# Calcul de l'ancienneté en tenant compte des mois à déduire
-anciennete_brute = payslip.anciennete
+        <field name="amount_python_compute">anciennete_brute = payslip.anciennete
 if contract.x_studio_mois_dduire > 0:
-    # Conversion des mois en jours (approximation de 30 jours par mois)
     jours_a_deduire = contract.x_studio_mois_dduire * 30
     anciennete_brute -= jours_a_deduire
-# Déduction des congés sans solde
 anciennete_nette = anciennete_brute - contract.conge_sans_solde
-# Conversion en années (partie entière)
-n3 = int(anciennete_nette / 365)
-# Application du minimum de 2 ans pour bénéficier de la prime
-n4 = n3 if n3 >= 2 else 0
-# Calcul de la prime (1% du salaire par année d'ancienneté)
+
+# Calcul en années
+annees = anciennete_nette / 365.0
+
+# Partie entière
+annees_entieres = int(annees)
+
+# Partie fractionnaire
+fraction = annees - annees_entieres
+
+# Arrondir à l'année supérieure si on a dépassé 6 mois
+if fraction >= 0.5:
+    annees_arrondies = annees_entieres + 1
+else:
+    annees_arrondies = annees_entieres
+
+# Appliquer le minimum de 1 an
+n4 = annees_arrondies if annees_arrondies >= 1 else 0
+
 result = round((contract.wage * n4) / 100)
         </field>
     </record>
@@ -790,7 +800,7 @@ result = irpp</field>
         <field name="amount_python_compute">result = categories.BASIC + categories.ATR + categories.ALW - categories.DED - categories.ARTN</field>
     </record>
 
-    <!-- ================ PAIE EXPA - RÈGLES SALARIALES ================ -->
+   <!-- ================ PAIE EXPA - RÈGLES SALARIALES ================ -->
 
     <!-- Salaire catégoriel EXPA -->
     <record id="salaire_categoriel_expa" model="hr.salary.rule">
@@ -815,8 +825,7 @@ result = irpp</field>
         <field name="active">TRUE</field>
         <field name="appears_on_payslip">TRUE</field>
         <field name="amount_select">code</field>
-        <field name="amount_python_compute">
-# Calcul de l'ancienneté en tenant compte des mois à déduire
+        <field name="amount_python_compute"># Calcul de l'ancienneté en tenant compte des mois à déduire
 anciennete_brute = payslip.anciennete
 if contract.x_studio_mois_dduire > 0:
     # Conversion des mois en jours (approximation de 30 jours par mois)
@@ -836,7 +845,280 @@ n4 = n3 if n3 >= 2 else 0
 result = round((contract.wage * n4) / 100)</field>
     </record>
 
-    <!-- Avantage en médecine pour EXPA -->
+    <!-- Sursalaire EXPA -->
+    <record id="sursalaire_expa" model="hr.salary.rule">
+        <field name="name">sursalaire</field>
+        <field name="code">sursalaire</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">112</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.sursalaire</field>
+    </record>
+
+    <!-- Heures supplémentaires 20% EXPA -->
+    <record id="heure_sup_20_expa" model="hr.salary.rule">
+        <field name="name">Heures suplémentaires 20%</field>
+        <field name="code">heure_sup_20</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">115</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.taux_horaire * contract.heure_sup_20 * 1.20</field>
+    </record>
+
+    <!-- Heures supplémentaires 40% EXPA -->
+    <record id="heure_sup_40_expa" model="hr.salary.rule">
+        <field name="name">Heures suplémentaires 40%</field>
+        <field name="code">heure_sup_40</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">116</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.taux_horaire * contract.heure_sup_40 * 1.4</field>
+    </record>
+
+    <!-- Heures supplémentaires 65% EXPA -->
+    <record id="heure_sup_65_expa" model="hr.salary.rule">
+        <field name="name">Heures suplémentaires 65%</field>
+        <field name="code">heure_sup_65</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">117</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.taux_horaire * contract.heure_sup_65 * 1.65</field>
+    </record>
+
+    <!-- Heures supplémentaires 100% EXPA -->
+    <record id="heure_sup_100_expa" model="hr.salary.rule">
+        <field name="name">Heures suplémentaires 100%</field>
+        <field name="code">heure_sup_100</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">118</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.taux_horaire * contract.heure_sup_100 * 2</field>
+    </record>
+
+    <!-- Prime de fonction EXPA -->
+    <record id="prime_fonction_expa" model="hr.salary.rule">
+        <field name="name">Prime de fonction</field>
+        <field name="code">prime_fonction</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">121</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_fonction</field>
+    </record>
+
+    <!-- Absence EXPA -->
+    <record id="absence_expa" model="hr.salary.rule">
+        <field name="name">Absence</field>
+        <field name="code">absence</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">122</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = -((salcat + anc + sursalaire + prime_fonction)/30 * contract.absence_a_deduire)</field>
+    </record>
+
+    <!-- Commission EXPA -->
+    <record id="commission_expa" model="hr.salary.rule">
+        <field name="name">Commission</field>
+        <field name="code">commission</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">123</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.commission</field>
+    </record>
+
+    <!-- 13ème mois EXPA -->
+    <record id="treizieme_mois_expa" model="hr.salary.rule">
+        <field name="name">13ème mois</field>
+        <field name="code">treizieme_mois</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">125</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_13_mois</field>
+    </record>
+
+    <!-- Prime de retraite IR EXPA -->
+    <record id="indeminite_retraite_ir_expa" model="hr.salary.rule">
+        <field name="name">Prime de retraite IR</field>
+        <field name="code">indeminite_retraite_ir</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">135</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.indeminite_retraite_ir</field>
+    </record>
+
+    <!-- Prime de retraite non IR EXPA -->
+    <record id="indeminite_retraite_non_ir_expa" model="hr.salary.rule">
+        <field name="name">Prime de retraite non IR</field>
+        <field name="code">indeminite_retraite_non_ir</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">136</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.indeminite_retraite_non_ir</field>
+    </record>
+
+    <!-- Habillement & encouragement EXPA -->
+    <record id="habillement_encouragement_expa" model="hr.salary.rule">
+        <field name="name">Habillement et encouragement</field>
+        <field name="code">habillement_encouragement</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">139</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.habillement_encouragement</field>
+    </record>
+
+    <!-- Préavis EXPA -->
+    <record id="preavis_expa" model="hr.salary.rule">
+        <field name="name">Préavis</field>
+        <field name="code">preavis</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">147</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.preavis</field>
+    </record>
+
+    <!-- Prime de transport EXPA -->
+    <record id="prime_transport_expa" model="hr.salary.rule">
+        <field name="name">Prime de transport</field>
+        <field name="code">prime_transport</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">160</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_transport</field>
+    </record>
+
+    <!-- Congés payés EXPA -->
+    <record id="conges_payes_expa" model="hr.salary.rule">
+        <field name="name">Congés payés</field>
+        <field name="code">conges_payes</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">173</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.conge_paye</field>
+    </record>
+
+    <!-- Prime de caisse EXPA -->
+    <record id="prime_caisse_expa" model="hr.salary.rule">
+        <field name="name">Prime de caisse</field>
+        <field name="code">prime_caisse</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">175</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_caisse</field>
+    </record>
+
+    <!-- Moins perçu sur salaire EXPA -->
+    <record id="moins_percu_sur_salaire_expa" model="hr.salary.rule">
+        <field name="name">Moins perçu sur salaire</field>
+        <field name="code">x_studio_moins_peru_sur_salaire</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">215</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.x_studio_moins_peru_sur_salaire</field>
+    </record>
+
+    <!-- Autres primes EXPA -->
+    <record id="autres_primes_expa" model="hr.salary.rule">
+        <field name="name">Autres primes</field>
+        <field name="code">autres_primes</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">221</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.autres_primes</field>
+    </record>
+
+    <!-- Avantage en eau EXPA -->
+    <record id="avantage_eau_expa" model="hr.salary.rule">
+        <field name="name">Avantage en eau</field>
+        <field name="code">x_studio_avantage_en_eau</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">222</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.x_studio_avantage_en_eau</field>
+    </record>
+
+    <!-- Avantage en électricité EXPA -->
+    <record id="avantage_voiture_expa" model="hr.salary.rule">
+        <field name="name">Avantage en électricité</field>
+        <field name="code">avantage_voiture</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">223</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.avantage_voiture</field>
+    </record>
+
+    <!-- Avantage en logement EXPA -->
+    <record id="avantage_logement_expa" model="hr.salary.rule">
+        <field name="name">Avantage en logement</field>
+        <field name="code">avantage_logement</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">224</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.avantage_logement</field>
+    </record>
+
+    <!-- Avantage en médecine EXPA -->
     <record id="avantage_medecine_expa" model="hr.salary.rule">
         <field name="name">Avantage en médecine</field>
         <field name="code">x_studio_avantage_en_mdecine</field>
@@ -849,71 +1131,70 @@ result = round((contract.wage * n4) / 100)</field>
         <field name="amount_python_compute">result = contract.x_studio_avantage_en_mdecine</field>
     </record>
 
-    <!-- Reprise des avantages pour EXPA -->
-    <record id="reprise_avantages_expa" model="hr.salary.rule">
-        <field name="name">Reprise des avantages</field>
-        <field name="code">reprise_avantages</field>
-        <field name="category_id" ref="autre_retenu"/>
-        <field name="sequence">549</field>
-        <field name="struct_id" ref="expa_salary_structure_id"/>
-        <field name="active">TRUE</field>
-        <field name="appears_on_payslip">TRUE</field>
-        <field name="amount_select">code</field>
-        <field name="amount_python_compute">result = contract.x_studio_avantage_en_eau + contract.x_studio_avantage_en_mdecine + contract.avantage_logement + contract.avantage_voiture</field>
-    </record>
-
-    <!-- ================ PAIE TOGO CONGÉS - RÈGLES SALARIALES ================ -->
-
-    <!-- Salaire net PAIE TOGO Congés -->
-    <record id="salaire_net_conges" model="hr.salary.rule">
-        <field name="name">Salaire net</field>
-        <field name="code">salaire_net</field>
-        <field name="category_id" ref="hr_payroll.NET"/>
-        <field name="sequence">2000</field>
-        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
-        <field name="active">TRUE</field>
-        <field name="appears_on_payslip">TRUE</field>
-        <field name="amount_select">code</field>
-        <field name="amount_python_compute">result = categories.BASIC + categories.ATR + categories.ALW - categories.DED - categories.ARTN - contract.wage</field>
-    </record>
-
-    <!-- Total brut PAIE TOGO Congés -->
-    <record id="total_brut_conges" model="hr.salary.rule">
+    <!-- Total brut EXPA -->
+    <record id="total_brut_expa" model="hr.salary.rule">
         <field name="name">Total brut</field>
         <field name="code">total_brut</field>
         <field name="category_id" ref="total_brut_cat"/>
         <field name="sequence">225</field>
-        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
         <field name="active">TRUE</field>
         <field name="appears_on_payslip">TRUE</field>
         <field name="amount_select">code</field>
-        <field name="amount_python_compute">result = categories.BASIC + categories.ALW - contract.wage - contract.absence_a_deduire</field>
+        <field name="amount_python_compute">result = categories.BASIC + categories.ALW</field>
     </record>
 
-    <!-- Retenue CNSS PAIE TOGO Congés -->
-    <record id="retenue_css_conges" model="hr.salary.rule">
+    <!-- Charge patronale EXPA -->
+    <record id="charge_patronale_rule_expa" model="hr.salary.rule">
+        <field name="name">Charges patronales</field>
+        <field name="code">charge_patronale_rule</field>
+        <field name="category_id" ref="charge_patronale"/>
+        <field name="sequence">230</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.wage * 22.5</field>
+    </record>
+
+    <!-- Indemnité de licenciement EXPA -->
+    <record id="indemnite_licenciement_expa" model="hr.salary.rule">
+        <field name="name">Indemnité de licenciement</field>
+        <field name="code">indemnite_licenciement</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">230</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.indemnite_licenciement</field>
+    </record>
+
+    <!-- Retenue CNSS EXPA -->
+    <record id="retenue_css_expa" model="hr.salary.rule">
         <field name="name">Retenue CNSS</field>
         <field name="code">retenue_css</field>
         <field name="category_id" ref="retenu"/>
         <field name="sequence">400</field>
-        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
         <field name="active">TRUE</field>
         <field name="appears_on_payslip">TRUE</field>
         <field name="amount_select">code</field>
-        <field name="amount_python_compute">result = (categories.BASIC + categories.ALW - contract.wage) * 9/100</field>
+        <field name="amount_python_compute">cnss = round(categories.BASIC * 0.09)
+result = cnss</field>
     </record>
 
-    <!-- Retenue IRPP PAIE TOGO Congés -->
-<record id="retenue_irpp_conges" model="hr.salary.rule">
-    <field name="name">Retenue IRPP</field>
-    <field name="code">retenue_irpp</field>
-    <field name="category_id" ref="retenu"/>
-    <field name="sequence">410</field>
-    <field name="struct_id" ref="togo_conges_salary_structure_id"/>
-    <field name="active">TRUE</field>
-    <field name="appears_on_payslip">TRUE</field>
-    <field name="amount_select">code</field>
-    <field name="amount_python_compute">salaireBrut = (categories.BASIC + categories.ALW - contract.wage - contract.absence_a_deduire)
+    <!-- Retenue IRPP EXPA -->
+    <record id="retenue_irpp_expa" model="hr.salary.rule">
+        <field name="name">Retenue IRPP</field>
+        <field name="code">retenue_irpp</field>
+        <field name="category_id" ref="retenu"/>
+        <field name="sequence">410</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">salaireBrut = categories.BASIC
 cnss = salaireBrut * 9 / 100
 semibrut = salaireBrut - cnss - prime_caisse - indeminite_retraite_ir
 abattement = semibrut * 28 / 100 if (semibrut &lt; 833333) else 233333
@@ -959,9 +1240,115 @@ if tranche8:
 
 irpp = int(irpp / 10) * 10
 result = irpp</field>
-</record>
+    </record>
 
-    <!-- Salaire categoriel PAIE TOGO Congés -->
+    <!-- Total cotisation EXPA -->
+    <record id="total_cotisation_expa" model="hr.salary.rule">
+        <field name="name">Total cotisation</field>
+        <field name="code">total_cotisation</field>
+        <field name="category_id" ref="total_retenu"/>
+        <field name="sequence">520</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = categories.DED</field>
+    </record>
+
+    <!-- Frais Forfait remboursement EXPA -->
+    <record id="frais_forfait_remboursement_expa" model="hr.salary.rule">
+        <field name="name">Frais Forfait remboursement</field>
+        <field name="code">frais_forfait_remboursement</field>
+        <field name="category_id" ref="autre_gain"/>
+        <field name="sequence">545</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.frais_forfait_remboursement</field>
+    </record>
+
+    <!-- Retenue assurance maladie EXPA -->
+    <record id="retenue_assur_maladie_expa" model="hr.salary.rule">
+        <field name="name">Retenue assurance maladie</field>
+        <field name="code">retenue_assur_maladie</field>
+        <field name="category_id" ref="autre_retenu"/>
+        <field name="sequence">547</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.retenue_assurance_maladie</field>
+    </record>
+
+    <!-- Avance et acompte retenues EXPA -->
+    <record id="avance_acompte_retenues_expa" model="hr.salary.rule">
+        <field name="name">Avance et acompte retenues</field>
+        <field name="code">avance_acompte_retenues</field>
+        <field name="category_id" ref="autre_retenu"/>
+        <field name="sequence">548</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.avance_accompte_retenues</field>
+    </record>
+
+    <!-- Reprise des avantages EXPA -->
+    <record id="reprise_avantages_expa" model="hr.salary.rule">
+        <field name="name">Reprise des avantages</field>
+        <field name="code">reprise_avantages</field>
+        <field name="category_id" ref="autre_retenu"/>
+        <field name="sequence">549</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.x_studio_avantage_en_eau + contract.x_studio_avantage_en_mdecine + contract.avantage_logement + contract.avantage_voiture</field>
+    </record>
+
+    <!-- Retenue 13ème mois EXPA -->
+    <record id="retenu_13_mois_expa" model="hr.salary.rule">
+        <field name="name">Retenue 13ème mois</field>
+        <field name="code">retenu_13_mois</field>
+        <field name="category_id" ref="autre_retenu"/>
+        <field name="sequence">555</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_13_mois</field>
+    </record>
+
+    <!-- Trop Perçu sur Salaire EXPA -->
+    <record id="trop_percu_expa" model="hr.salary.rule">
+        <field name="name">Trop Perçu sur Salaire</field>
+        <field name="code">trop_percu</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">570</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = -contract.trop_percu</field>
+    </record>
+
+    <!-- Salaire net EXPA -->
+    <record id="salaire_net_expa" model="hr.salary.rule">
+        <field name="name">Salaire net</field>
+        <field name="code">salaire_net</field>
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="sequence">2000</field>
+        <field name="struct_id" ref="expa_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = categories.BASIC + categories.ATR + categories.ALW - categories.DED - categories.ARTN</field>
+    </record>
+
+        <!-- ================ PAIE TOGO CONGÉS - RÈGLES SALARIALES ================ -->
+
+    <!-- Salaire catégoriel PAIE TOGO Congés -->
     <record id="salaire_categoriel_conges" model="hr.salary.rule">
         <field name="name">Salaire categoriel</field>
         <field name="code">salcat</field>
@@ -983,9 +1370,428 @@ result = irpp</field>
         <field name="struct_id" ref="togo_conges_salary_structure_id"/>
         <field name="active">TRUE</field>
         <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">fix</field>
+    </record>
+
+    <!-- Sursalaire PAIE TOGO Congés -->
+    <record id="sursalaire_conges" model="hr.salary.rule">
+        <field name="name">sursalaire</field>
+        <field name="code">sursalaire</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">112</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
         <field name="amount_select">code</field>
-        <field name="amount_python_compute">n3 = int((payslip.anciennete - contract.conge_sans_solde)/365)
-n4 = n3 if n3 > 2 else 0
-result = round(contract.wage * (n4) / 100)</field>
+        <field name="amount_python_compute">result = contract.sursalaire</field>
+    </record>
+
+    <!-- Heures supplémentaires 20% PAIE TOGO Congés -->
+    <record id="heure_sup_20_conges" model="hr.salary.rule">
+        <field name="name">Heures suplémentaires 20%</field>
+        <field name="code">heure_sup_20</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">115</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.taux_horaire * contract.heure_sup_20 * 1.20</field>
+    </record>
+
+    <!-- Heures supplémentaires 40% PAIE TOGO Congés -->
+    <record id="heure_sup_40_conges" model="hr.salary.rule">
+        <field name="name">Heures suplémentaires 40%</field>
+        <field name="code">heure_sup_40</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">116</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.taux_horaire * contract.heure_sup_40 * 1.4</field>
+    </record>
+
+    <!-- Heures supplémentaires 65% PAIE TOGO Congés -->
+    <record id="heure_sup_65_conges" model="hr.salary.rule">
+        <field name="name">Heures suplémentaires 65%</field>
+        <field name="code">heure_sup_65</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">117</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.taux_horaire * contract.heure_sup_65 * 1.65</field>
+    </record>
+
+    <!-- Heures supplémentaires 100% PAIE TOGO Congés -->
+    <record id="heure_sup_100_conges" model="hr.salary.rule">
+        <field name="name">Heures suplémentaires 100%</field>
+        <field name="code">heure_sup_100</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">118</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.taux_horaire * contract.heure_sup_100 * 2</field>
+    </record>
+
+    <!-- Prime de logement PAIE TOGO Congés -->
+    <record id="prime_logoement_15_conges" model="hr.salary.rule">
+        <field name="name">Prime de logement</field>
+        <field name="code">prime_logoement_15</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">120</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = salcat * 0.10 if contract.est_cadre else salcat * 0.15</field>
+    </record>
+
+    <!-- Prime de fonction PAIE TOGO Congés -->
+    <record id="prime_fonction_conges" model="hr.salary.rule">
+        <field name="name">Prime de fonction</field>
+        <field name="code">prime_fonction</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">121</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_fonction</field>
+    </record>
+
+    <!-- Absence PAIE TOGO Congés -->
+    <record id="absence_conges" model="hr.salary.rule">
+        <field name="name">Absence</field>
+        <field name="code">absence</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">122</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = -((salcat + anc + sursalaire + prime_fonction)/30 * contract.absence_a_deduire)</field>
+    </record>
+
+    <!-- Commission PAIE TOGO Congés -->
+    <record id="commission_conges" model="hr.salary.rule">
+        <field name="name">Commission</field>
+        <field name="code">commission</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">123</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.commission</field>
+    </record>
+
+    <!-- 13ème mois PAIE TOGO Congés -->
+    <record id="treizieme_mois_conges" model="hr.salary.rule">
+        <field name="name">13ème mois</field>
+        <field name="code">treizieme_mois</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">125</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_13_mois</field>
+    </record>
+
+    <!-- Prime de retraite IR PAIE TOGO Congés -->
+    <record id="indeminite_retraite_ir_conges" model="hr.salary.rule">
+        <field name="name">Prime de retraite IR</field>
+        <field name="code">indeminite_retraite_ir</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">135</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.indeminite_retraite_ir</field>
+    </record>
+
+    <!-- Prime de retraite non IR PAIE TOGO Congés -->
+    <record id="indeminite_retraite_non_ir_conges" model="hr.salary.rule">
+        <field name="name">Prime de retraite non IR</field>
+        <field name="code">indeminite_retraite_non_ir</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">136</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.indeminite_retraite_non_ir</field>
+    </record>
+
+    <!-- Habillement & encouragement PAIE TOGO Congés -->
+    <record id="habillement_encouragement_conges" model="hr.salary.rule">
+        <field name="name">Habillement et encouragement</field>
+        <field name="code">habillement_encouragement</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">139</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.habillement_encouragement</field>
+    </record>
+
+    <!-- Préavis PAIE TOGO Congés -->
+    <record id="preavis_conges" model="hr.salary.rule">
+        <field name="name">Préavis</field>
+        <field name="code">preavis</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">147</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.preavis</field>
+    </record>
+
+    <!-- Prime de transport PAIE TOGO Congés -->
+    <record id="prime_transport_conges" model="hr.salary.rule">
+        <field name="name">Prime de transport</field>
+        <field name="code">prime_transport</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">160</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_transport</field>
+    </record>
+
+    <!-- Congés payés PAIE TOGO Congés -->
+    <record id="conges_payes_conges" model="hr.salary.rule">
+        <field name="name">Congés payés</field>
+        <field name="code">conges_payes</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">173</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.conge_paye</field>
+    </record>
+
+    <!-- Prime de caisse PAIE TOGO Congés -->
+    <record id="prime_caisse_conges" model="hr.salary.rule">
+        <field name="name">Prime de caisse</field>
+        <field name="code">prime_caisse</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">175</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_caisse</field>
+    </record>
+
+    <!-- Moins perçu sur salaire PAIE TOGO Congés -->
+    <record id="moins_percu_sur_salaire_conges" model="hr.salary.rule">
+        <field name="name">Moins perçu sur salaire</field>
+        <field name="code">x_studio_moins_peru_sur_salaire</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">215</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.x_studio_moins_peru_sur_salaire</field>
+    </record>
+
+    <!-- Autres primes PAIE TOGO Congés -->
+    <record id="autres_primes_conges" model="hr.salary.rule">
+        <field name="name">Autres primes</field>
+        <field name="code">autres_primes</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">221</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.autres_primes</field>
+    </record>
+
+    <!-- Total brut PAIE TOGO Congés -->
+    <record id="total_brut_conges" model="hr.salary.rule">
+        <field name="name">Total brut</field>
+        <field name="code">total_brut</field>
+        <field name="category_id" ref="total_brut_cat"/>
+        <field name="sequence">225</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = categories.BASIC + categories.ALW - contract.absence_a_deduire - contract.wage</field>
+    </record>
+
+    <!-- Charge patronale PAIE TOGO Congés -->
+    <record id="charge_patronale_rule_conges" model="hr.salary.rule">
+        <field name="name">Charges patronales</field>
+        <field name="code">charge_patronale_rule</field>
+        <field name="category_id" ref="charge_patronale"/>
+        <field name="sequence">230</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.wage * 0.10</field>
+    </record>
+
+    <!-- Retenue CNSS PAIE TOGO Congés -->
+    <record id="retenue_css_conges" model="hr.salary.rule">
+        <field name="name">Retenue CNSS</field>
+        <field name="code">retenue_css</field>
+        <field name="category_id" ref="retenu"/>
+        <field name="sequence">400</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = (categories.BASIC + categories.ALW - contract.wage)*9/100</field>
+    </record>
+
+    <!-- Retenue IRPP PAIE TOGO Congés -->
+    <record id="retenue_irpp_conges" model="hr.salary.rule">
+        <field name="name">Retenue IRPP</field>
+        <field name="code">retenue_irpp</field>
+        <field name="category_id" ref="retenu"/>
+        <field name="sequence">410</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">salaireBrut = (categories.BASIC + categories.ALW - contract.wage - contract.absence_a_deduire)
+cnss = salaireBrut * 9 / 100
+semibrut = salaireBrut - cnss - prime_caisse - indeminite_retraite_ir
+abattement = semibrut * 28 / 100 if (semibrut &lt; 833333) else 233333
+revenu_semi_net = semibrut - abattement
+allocation = 10000 * employee.children
+revenu_net = revenu_semi_net - allocation
+baseirpp = (int(revenu_net/1000)) * 1000
+
+tranche1 = baseirpp &lt; 75000 &gt;= 0
+tranche2 = baseirpp &lt; 250000 and baseirpp &gt;= 75000
+tranche3 = baseirpp &lt; 500000 and baseirpp &gt;= 250000
+tranche4 = baseirpp &lt; 750000 and baseirpp &gt;= 500000
+tranche5 = baseirpp &lt; 1000000 and baseirpp &gt;= 750000
+tranche6 = baseirpp &lt; 1250000 and baseirpp &gt;= 1000000
+tranche7 = baseirpp &lt; 1666667 and baseirpp &gt;= 1250000
+tranche8 = baseirpp &gt;= 1666667
+
+tranche1_irpp = (75000 - 0)*0/100
+tranche2_irpp = (250000 - 75000)*3/100
+tranche3_irpp = (500000 - 250000)*10/100
+tranche4_irpp = (750000 - 500000)*15/100
+tranche5_irpp = (1000000 - 750000)*20/100
+tranche6_irpp = (1250000 - 1000000)*25/100
+tranche7_irpp = (1666667 - 1250000)*30/100
+tranche8_irpp = (baseirpp)*35/100
+
+if tranche1:
+    irpp = baseirpp * 0/100
+if tranche2:
+    irpp = tranche1_irpp + (baseirpp - 75000) * 3/100
+if tranche3:
+    irpp = tranche1_irpp + tranche2_irpp + (baseirpp - 250000) * 10/100
+if tranche4:
+    irpp = tranche1_irpp + tranche2_irpp + tranche3_irpp + (baseirpp - 500000) * 15/100
+if tranche5:
+    irpp = tranche1_irpp + tranche2_irpp + tranche3_irpp + tranche4_irpp + (baseirpp - 750000) * 20/100
+if tranche6:
+    irpp = tranche1_irpp + tranche2_irpp + tranche3_irpp + tranche4_irpp + tranche5_irpp + (baseirpp - 1000000) * 25/100
+if tranche7:
+    irpp = tranche1_irpp + tranche2_irpp + tranche3_irpp + tranche4_irpp + tranche5_irpp + tranche6_irpp + (baseirpp - 1250000) * 30/100
+if tranche8:
+    irpp = tranche1_irpp + tranche2_irpp + tranche3_irpp + tranche4_irpp + tranche5_irpp + tranche6_irpp + tranche7_irpp + (baseirpp - 1666667) * 35/100
+
+irpp = int(irpp / 10) * 10
+result = irpp</field>
+    </record>
+
+    <!-- Frais Forfait remboursement PAIE TOGO Congés -->
+    <record id="frais_forfait_remboursement_conges" model="hr.salary.rule">
+        <field name="name">Frais Forfait remboursement</field>
+        <field name="code">frais_forfait_remboursement</field>
+        <field name="category_id" ref="autre_gain"/>
+        <field name="sequence">545</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.frais_forfait_remboursement</field>
+    </record>
+
+    <!-- Retenue assurance maladie PAIE TOGO Congés -->
+    <record id="retenue_assur_maladie_conges" model="hr.salary.rule">
+        <field name="name">Retenue assurance maladie</field>
+        <field name="code">retenue_assur_maladie</field>
+        <field name="category_id" ref="autre_retenu"/>
+        <field name="sequence">547</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.retenue_assurance_maladie</field>
+    </record>
+
+    <!-- Avance et acompte retenues PAIE TOGO Congés -->
+    <record id="avance_acompte_retenues_conges" model="hr.salary.rule">
+        <field name="name">Avance et acompte retenues</field>
+        <field name="code">avance_acompte_retenues</field>
+        <field name="category_id" ref="autre_retenu"/>
+        <field name="sequence">548</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.avance_accompte_retenues</field>
+    </record>
+
+    <!-- Retenue 13ème mois PAIE TOGO Congés -->
+    <record id="retenu_13_mois_conges" model="hr.salary.rule">
+        <field name="name">Retenue 13ème mois</field>
+        <field name="code">retenu_13_mois</field>
+        <field name="category_id" ref="autre_retenu"/>
+        <field name="sequence">555</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = contract.prime_13_mois</field>
+    </record>
+
+    <!-- Trop Perçu sur Salaire PAIE TOGO Congés -->
+    <record id="trop_percu_conges" model="hr.salary.rule">
+        <field name="name">Trop Perçu sur Salaire</field>
+        <field name="code">trop_percu</field>
+        <field name="category_id" ref="gain_imposable"/>
+        <field name="sequence">570</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = -contract.trop_percu</field>
+    </record>
+
+    <!-- Salaire net PAIE TOGO Congés -->
+    <record id="salaire_net_conges" model="hr.salary.rule">
+        <field name="name">Salaire net</field>
+        <field name="code">salaire_net</field>
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="sequence">2000</field>
+        <field name="struct_id" ref="togo_conges_salary_structure_id"/>
+        <field name="active">TRUE</field>
+        <field name="appears_on_payslip">TRUE</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = categories.BASIC + categories.ATR + categories.ALW - categories.DED - categories.ARTN - contract.wage</field>
     </record>
 </odoo>

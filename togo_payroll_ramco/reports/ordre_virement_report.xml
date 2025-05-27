@@ -1,76 +1,146 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <!-- Rapport pour l'ordre de virement -->
-    <report
-        id = "order_virement_report_view"
-        model = "hr.virement"
-        string = "Ordre de virement"
-        report_type = "qweb-pdf"
-        name = "togo_payroll_ramco.order_virement_report"
-        file = "togo_payroll_ramco.order_virement_report"
-    />
+   <!-- Rapport Virement -->
+<report
+    id="order_virement_report_view"
+    model="hr.virement"
+    string="Ordre de virement"
+    report_type="qweb-pdf"
+    name="togo_payroll_ramco.order_virement_report"
+    file="togo_payroll_ramco.order_virement_report"
+/>
+
+<!-- Rapport Chèque -->
+<report
+    id="order_cheque_report_view"
+    model="hr.virement"
+    string="Ordre de paiement par chèque"
+    report_type="qweb-pdf"
+    name="togo_payroll_ramco.order_virement_report"
+    file="togo_payroll_ramco.order_virement_report"
+/>
 
     <template id="order_virement_report">
         <t t-call="web.html_container">
             <t t-call="web.external_layout">
                 <t t-foreach="docs" t-as="o">
+                    <!-- Titre dynamique selon le type de paiement -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2>
+                            <t t-if="o.type_paiement == 'virement'">
+                                ORDRE DE VIREMENT
+                            </t>
+                            <t t-elif="o.type_paiement == 'cheque'">
+                                ORDRE DE PAIEMENT PAR CHÈQUE
+                            </t>
+                            <t t-elif="o.type_paiement == 'espece'">
+                                ORDRE DE PAIEMENT EN ESPÈCES
+                            </t>
+                            <t t-else="">
+                                ORDRE DE PAIEMENT
+                            </t>
+                        </h2>
+                        <!-- Informations supplémentaires du virement -->
+                        <p>
+                            <strong>
+                                <span t-esc="o.mois_de_paie or ''"/>
+                                <span t-esc="o.bank_id.name or ''"/>
+                                <span t-esc="o.annee or ''"/>
+                            </strong>
+                        </p>
+                    </div>
+
                     <p style="font-size:20px;">Messieurs,</p>
                     <p style="font-size:20px;">
                         <t t-if="o.type_paiement == 'cheque'">
-                            Par ce présent chèque <t t-esc="o.check_number"/>, nous vous prions de bien vouloir virer dans les meilleurs délais, les montant ci-dessous(en FCFA) au crédit des comptes ouverts chez vous à <t t-esc="o.bank_id.name"/>
+                            Par ce présent chèque <t t-esc="o.check_number or '****'"/>, nous vous prions de bien vouloir virer dans les meilleurs délais, les montant ci-dessous(en FCFA) au crédit des comptes ouverts chez vous à <t t-esc="o.bank_id.name or '***'"/>
+                        </t>
+                        <t t-elif="o.type_paiement == 'virement'">
+                            Par le débit de notre compte N° <t t-esc="o.x_studio_n_de_compte or '***'"/> chez vous, nous vous prions de bien vouloir virer dans les meilleurs délais, les montant ci-dessous(en FCFA) au crédit des comptes ouverts également chez vous à <t t-esc="o.bank_id.name or '***'"/>
+                        </t>
+                        <t t-elif="o.type_paiement == 'espece'">
+                            Nous vous prions de bien vouloir payer en espèces dans les meilleurs délais, les montants ci-dessous (en FCFA) à nos employés selon la liste suivante :
                         </t>
                         <t t-else="">
-                            Nous vous prions de bien vouloir virer dans les meilleurs délais, les montant ci-dessous(en FCFA) au crédit des comptes ouverts chez vous à <t t-esc="o.bank_id.name"/>
+                            Nous vous prions de bien vouloir effectuer le paiement dans les meilleurs délais, les montants ci-dessous (en FCFA) selon les modalités convenues.
                         </t>
                     </p>
+
                     <table class="table table-sm">
                         <thead>
                             <th>N° MATR</th>
                             <th>NOM ET PRENOM</th>
-                            <th>BANQUE ET NUMERO DE COMPTE</th>
+                            <th t-if="o.type_paiement != 'espece'">BANQUE ET NUMERO DE COMPTE</th>
+                            <th t-if="o.type_paiement == 'espece'">SIGNATURE</th>
                             <th>NET A PAYER</th>
                         </thead>
                         <tbody>
                             <t t-set="total_amount" t-value="0"/>
-                                <t t-foreach="o.payslip_ids" t-as="payslip_id">
-                                    <tr>
-                                        <td><t t-esc="payslip_id.employee_id.matricule"/></td>
-                                        <td><t t-esc="payslip_id.employee_id.name"/></td>
-                                        <td>
+                            <t t-foreach="o.payslip_ids" t-as="payslip_id">
+                                <tr>
+                                    <td><t t-esc="payslip_id.employee_id.matricule"/></td>
+                                    <td><t t-esc="payslip_id.employee_id.name"/></td>
+                                    <td>
+                                        <t t-if="o.type_paiement != 'espece'">
                                             <span t-esc="payslip_id.employee_id.banque_id.name"/>
                                             <span style="color:white;">------------------</span>
                                             <span t-esc="payslip_id.employee_id.account_number"/>
-                                        </td>
-                                        <td style="text-align:right;"><t t-esc="'{:,}'.format(round(payslip_id.net_wage)).replace(',',' ')"/></td>
-                                        <t t-set="total_amount" t-value="total_amount + payslip_id.net_wage"/>
-                                    </tr>
-                                </t>
-                            <tr>
+                                        </t>
+                                        <t t-else="">
+                                            <!-- Espace pour signature en cas de paiement espèces -->
+                                            ________________________________
+                                        </t>
+                                    </td>
+                                    <td style="text-align:right;"><t t-esc="'{:,}'.format(round(payslip_id.net_wage)).replace(',',' ')"/></td>
+                                    <t t-set="total_amount" t-value="total_amount + payslip_id.net_wage"/>
+                                </tr>
+                            </t>
+                            <tr style="font-weight: bold;">
                                 <td colspan="3">Total</td>
-                                <td><t t-esc="'{:,}'.format(round(total_amount)).replace(',',' ')"/></td>
+                                <td style="text-align:right;"><t t-esc="'{:,}'.format(round(total_amount)).replace(',',' ')"/></td>
                             </tr>
                         </tbody>
                     </table>
 
-                   <p style="font-size:20px;">Nous vous en remercions à l'avance</p>
-                   <p style="font-size:20px;">Veuillez agréer Messieurs, nos salutations distinguées</p>
-                   <p style="font-size:20px;">Pour la Direction Générale</p>
+                    <!-- Texte de conclusion adapté au type de paiement -->
+                    <p style="font-size:20px;">Nous vous en remercions à l'avance</p>
+                    <p style="font-size:20px;">Veuillez agréer Messieurs, nos salutations distinguées</p>
+                    <p style="font-size:20px;">Pour RAMCO S.A IMPORT-EXPORT</p>
+
+                    <!-- Section signature et cachet -->
+                    <div style="margin-top: 50px; text-align: right;">
+                        <p style="font-size:18px;">
+                            <t t-if="o.type_paiement == 'cheque'">
+                                Signature et cachet de l'entreprise
+                            </t>
+                            <t t-elif="o.type_paiement == 'espece'">
+                                Signature du responsable des paiements
+                            </t>
+                            <t t-else="">
+                                Signature et cachet
+                            </t>
+                        </p>
+                        <div style="height: 80px; border-bottom: 1px solid black; width: 200px; margin-left: auto; margin-top: 20px;"></div>
+                    </div>
+
+                    <!-- Note spéciale pour paiement en espèces -->
+                    <t t-if="o.type_paiement == 'espece'">
+                        <div style="margin-top: 30px; border: 1px solid black; padding: 10px;">
+                            <p style="font-weight: bold; text-align: center;">NOTE IMPORTANTE</p>
+                            <p>Les employés doivent signer à côté de leur nom lors de la réception de leur salaire en espèces.</p>
+                            <p>Conserver ce document comme justificatif de paiement.</p>
+                        </div>
+                    </t>
+
+                    <!-- Information sur le chèque si applicable -->
+                    <t t-if="o.type_paiement == 'cheque' and o.check_number">
+                        <div style="margin-top: 20px;">
+                            <p><strong>Numéro de chèque :</strong> <span t-esc="o.check_number"/></p>
+                        </div>
+                    </t>
                 </t>
             </t>
         </t>
     </template>
-
-<!--
-    Rapport Excel désactivé - dépendance au module report_xlsx manquante
-    <record id="hr_virement_xlsx_report" model="ir.actions.report">
-        <field name="name">Export Excel Virements</field>
-        <field name="model">hr.virement</field>
-        <field name="report_type">xlsx</field>
-        <field name="report_name">togo_payroll_ramco.hr_virement_xlsx</field>
-        <field name="report_file">togo_payroll_ramco.hr_virement_xlsx</field>
-        <field name="print_report_name">'Ordres de virement - %s' % (datetime.now().strftime('%Y-%m-%d'))</field>
-        <field name="binding_model_id" ref="model_hr_virement"/>
-        <field name="binding_type">report</field>
-    </record>
--->
 </odoo>

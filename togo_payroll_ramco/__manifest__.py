@@ -19,6 +19,9 @@
 
         # Rapports
         'reports/fiche_de_paie.xml',
+        'reports/fiche_de_paie_conges.xml',  # Nouveau fichier
+        'reports/fiche_de_paie_expa.xml',  # Nouveau fichier
+        'reports/fiche_de_paie_stagiaire.xml',  # Nouveau fichier
         'reports/ordre_virement_report.xml',
         'reports/report_livre_mensuel.xml',
         'reports/report_livre_annuel.xml',

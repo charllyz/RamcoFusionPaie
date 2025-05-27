@@ -40,7 +40,7 @@ class HrPayslip(models.Model):
                     total += line.total
             rec.net_wage = total
 
-    @api.onchange('contract_id', 'employee_id', 'date_to')
+    @api.onchange('contract_id', 'employee_id')
     def calcule_anciennete(self):
         for rec in self:
             date_debut = rec.contract_id.date_start
@@ -53,9 +53,9 @@ class HrPayslip(models.Model):
                 d0 = datetime.date(int(n1[0]), int(n1[1]), int(n1[2]))
                 d1 = datetime.date(int(n2[0]), int(n2[1]), int(n2[2]))
                 deltat = d1 - d0
+                annee = (deltat.days) / 365
+                mois = ((deltat.days) - int(annee) * 365) / 30
                 rec.anciennete = deltat.days
-
-            # Calcul des heures supplémentaires
             hs = rec.contract_id.heure_sup_20 + rec.contract_id.heure_sup_40 + rec.contract_id.heure_sup_65 + rec.contract_id.heure_sup_100 + rec.contract_id.heure_sup_nuit
             rec.heure_suplementaire = hs
 
@@ -65,7 +65,6 @@ class HrSalaryRule(models.Model):
 
     def _add_date_libs(self, localdict):
         localdict.update({
-            'fields': fields,
             'floor': floor,
             'ceil': ceil,
         })

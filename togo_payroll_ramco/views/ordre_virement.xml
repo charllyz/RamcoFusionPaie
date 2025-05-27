@@ -21,6 +21,7 @@
                         <group>
                             <field name="check_number" attrs="{'invisible': [('type_paiement', '!=', 'cheque')], 'required': [('type_paiement', '=', 'cheque')]}"/>
                             <field name="bank_id"/>
+                             <field name="x_studio_n_de_compte"/>
                             <field name="excel_file" filename="excel_filename" invisible="1"/>
                             <field name="excel_filename" invisible="1"/>
                         </group>
@@ -47,6 +48,7 @@
                 <field name="mois_de_paie"/>
                 <field name="annee"/>
                 <field name="check_number"/>
+                <field name="x_studio_n_de_compte"/>
                 <field name="bank_id"/>
             </tree>
         </field>

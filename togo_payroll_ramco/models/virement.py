@@ -13,12 +13,14 @@ class HrVirement(models.Model):
 
     name = fields.Char(string='Référence')
     date = fields.Date(string='Date')
+    company_id = fields.Many2one('res.company', string='Société', default=lambda self: self.env.company)
     payslip_ids = fields.Many2many('hr.payslip')
     check_number = fields.Char(string="Numéro de chèque")
     bank_id = fields.Many2one(
       'res.bank',
       string='Banque',
     )
+    x_studio_n_de_compte = fields.Char(string="Numéro de compte")  # Ajout du nouveau champ
     mois_de_paie = fields.Selection([
       ('Janvier','Janvier'),
       ('Février','Février'),
@@ -42,6 +44,40 @@ class HrVirement(models.Model):
 
     excel_file = fields.Binary(string='Fichier Excel', readonly=True)
     excel_filename = fields.Char(string='Nom du fichier Excel', readonly=True)
+
+    @api.onchange('date')
+    def _onchange_date(self):
+        """Met à jour les champs mois_de_paie et annee en fonction de la date sélectionnée."""
+        if not self.date:
+            return
+
+        # Mapping des mois en français
+        mois_mapping = {
+            1: 'Janvier',
+            2: 'Février',
+            3: 'Mars',
+            4: 'Avril',
+            5: 'Mai',
+            6: 'Juin',
+            7: 'Juillet',
+            8: 'Août',
+            9: 'Septembre',
+            10: 'Octobre',
+            11: 'Novembre',
+            12: 'Décembre'
+        }
+
+        # Extraire le mois et l'année de la date
+        date_obj = self.date
+        mois_num = date_obj.month
+        annee = date_obj.year
+
+        # Mettre à jour les champs
+        self.mois_de_paie = mois_mapping.get(mois_num)
+        self.annee = annee
+
+        # Appeler _onchange_type_paiement pour mettre à jour le nom
+        self._onchange_type_paiement()
 
     def generate_xlsx_report_download(self):
         """Génère un fichier Excel pour l'ordre de virement basé sur le format du rapport PDF existant"""
@@ -320,7 +356,8 @@ class HrVirement(models.Model):
             'target': 'self',
         }
 
-    @api.onchange('type_paiement','mois_de_paie', 'bank_id', 'annee')
+    # Modification de la méthode _onchange_type_paiement existante pour ajouter date aux déclencheurs
+    @api.onchange('type_paiement', 'mois_de_paie', 'bank_id', 'annee', 'date')
     def _onchange_type_paiement(self):
         """Met à jour le champ description (name) en fonction du type de paiement sélectionné."""
         if not self.type_paiement:
